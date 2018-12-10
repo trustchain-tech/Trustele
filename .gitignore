@@ -1,0 +1,9 @@
+*.ss
+*.log
+build/
+dist/
+__pycache__/
+
+.idea/
+*.spec
+venv/
