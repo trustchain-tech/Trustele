@@ -2,10 +2,10 @@ import sys
 import re
 import logging
 import qdarkstyle
-import mainWindow
-from send import Sender
+from ui import mainWindow
+from bots.send import Sender
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow
 
 # digit and letter only
 RULE1 = "^[A-Za-z0-9]+$"
@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, filename='./trustele.log', format='%(asc
 log = logging.getLogger('trustele.main')
 
 
-class MyUi(mainWindow.Ui_MainWindow):
+class Ui(mainWindow.Ui_MainWindow):
 
     def setupUi(self, mw):
         super().setupUi(mw)
@@ -65,8 +65,7 @@ if __name__ == '__main__':
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
     try:
         MainWindow = QMainWindow()
-        ui = MyUi()
-        ui.setupUi(MainWindow)
+        Ui().setupUi(MainWindow)
         MainWindow.show()
         sys.exit(app.exec_())
     except Exception as e:
