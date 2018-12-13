@@ -1,5 +1,4 @@
 # coding=utf-8
-
 import os
 import sys
 import logging
@@ -10,7 +9,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from lib.localstorage import LocalStorage
+
+from trustele.lib.localstorage import LocalStorage
 
 SESSION_KEYS = ['user_auth', 'dc',
                 'dc1_auth_key', 'dc1_server_salt',
@@ -20,20 +20,20 @@ SESSION_KEYS = ['user_auth', 'dc',
 logging.basicConfig(level=logging.INFO, filename='./trustele.log', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 log = logging.getLogger('trustele.sender')
 
-
-if getattr(sys, 'frozen', False) and sys.platform.startswith('win'):
-    os.environ['PATH'] += ';' + sys._MEIPASS
+if getattr(sys, 'frozen', False):
+    sep = ';' if sys.platform.startswith('win') else ':'
+    os.environ['PATH'] += sep + sys._MEIPASS
 
 
 class Sender(object):
-    def __init__(self, phone):
+    def __init__(self, my_id):
         self.browser = webdriver.Chrome()
         self.login_url = "https://web.telegram.org/#/login"
         self.req_url = "https://web.telegram.org/#/im"
-        self.phone = phone
-        self.session_path = phone + '.ss'
+        self.session_path = my_id + '.ss'
 
         self.browser.implicitly_wait(5)  # seconds
+        log.info('sender initialized...')
 
     def open_browser(self):
         self.browser.get(self.login_url)
@@ -77,3 +77,7 @@ class Sender(object):
         except Exception as e:
             log.error(str(e))
 
+
+if __name__ == '__main__':
+   sender = Sender('TrustChain')
+   sender.launch('@blockchainaire', 'hello world')

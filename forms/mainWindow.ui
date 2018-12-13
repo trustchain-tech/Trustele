@@ -32,8 +32,8 @@
    <string>Trustele by trustchain-tech</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../resource/logo.qrc">
-    <normaloff>:/resource/logo.png</normaloff>:/resource/logo.png</iconset>
+   <iconset>
+    <normaloff>../resources/logo.png</normaloff>../resources/logo.png</iconset>
   </property>
   <property name="windowOpacity">
    <double>0.950000000000000</double>
@@ -262,7 +262,7 @@ p, li { white-space: pre-wrap; }
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="../resource/logo.qrc">:/resource/logo.png</pixmap>
+     <pixmap resource="../resources/logo.qrc">:/resources/logo.png</pixmap>
     </property>
    </widget>
   </widget>
@@ -278,8 +278,7 @@ p, li { white-space: pre-wrap; }
   </action>
  </widget>
  <resources>
-  <include location="../resource/logo.qrc"/>
-  <include location="resource/logo.qrc"/>
+  <include location="../resources/logo.qrc"/>
  </resources>
  <connections/>
 </ui>

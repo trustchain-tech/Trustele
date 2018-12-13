@@ -1,29 +1,27 @@
-import sys
 import re
 import logging
-import qdarkstyle
-from ui import mainWindow
-from bots.send import Sender
-
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from trustele.forms import mainWindow_ui
+from trustele.bots.send import Sender
 
 # digit and letter only
 RULE1 = "^[A-Za-z0-9]+$"
 
 logging.basicConfig(level=logging.INFO, filename='./trustele.log', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-log = logging.getLogger('trustele.main')
+log = logging.getLogger('trustele.ui')
 
 
-class Ui(mainWindow.Ui_MainWindow):
+class Ui(mainWindow_ui.Ui_MainWindow):
 
     def setupUi(self, mw):
         super().setupUi(mw)
         self._prepare()
+        log.info('ui initialized...')
 
     def _prepare(self):
         self.pushButton.clicked.connect(self.on_launch)
 
     def on_launch(self):
+        log.info("on launch...")
         info = ''
         err_flag = False
 
@@ -57,16 +55,3 @@ class Ui(mainWindow.Ui_MainWindow):
                     self.progressBar.setValue(progress)
             except Exception as e:
                 log.error(str(e))
-
-
-if __name__ == '__main__':
-    log.info("starting...")
-    app = QApplication(sys.argv)
-    app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
-    try:
-        MainWindow = QMainWindow()
-        Ui().setupUi(MainWindow)
-        MainWindow.show()
-        sys.exit(app.exec_())
-    except Exception as e:
-        log.error(str(e))

@@ -3,7 +3,10 @@
 build/
 dist/
 __pycache__/
+*.egg-info/
 
 .idea/
 *.spec
 venv/
+
+trustele/forms/*.py
