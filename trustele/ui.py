@@ -50,6 +50,7 @@ class Ui(mainWindow_ui.Ui_MainWindow):
             self.info_area.clear()
             log.info("launch sender...")
             try:
+                self.progressBar.setValue(0)
                 sender = Sender(my_id)
                 for progress in sender.launch(user_list, msg):
                     self.progressBar.setValue(progress)
