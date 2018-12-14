@@ -49,10 +49,16 @@ class Sender(object):
     def record_login_session(self):
         LocalStorage(self.browser).save(self.session_path)
 
-    def send_it(self, msg):
-        text_area = self.browser.find_element_by_class_name('composer_rich_textarea')
-        text_area.send_keys(msg)
-        text_area.send_keys(Keys.ENTER)
+    def send_it(self, user, msg):
+        self.browser.get(self.req_url + '?p=' + user)
+        try:
+            text_area = self.browser.find_element_by_class_name('composer_rich_textarea')
+            text_area.send_keys(msg)
+            text_area.send_keys(Keys.ENTER)
+            log.info('success send to %s', user)
+        except Exception as e:
+            log.error("failed send to %s", user)
+            log.error(str(e))
 
     def launch(self, user_names, msg):
         try:
@@ -68,9 +74,8 @@ class Sender(object):
             user_names = list(set([u.strip() for u in user_names]))
 
             counter = 0
-            for p in user_names:
-                self.browser.get(self.req_url + '?p=' + p)
-                self.send_it(msg)
+            for u in user_names:
+                self.send_it(u, msg)
                 counter += 1
                 percent = 100 * counter / len(user_names)
                 yield percent
