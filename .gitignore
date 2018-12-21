@@ -1,4 +1,6 @@
 *.ss
+*.session
+*.sqlite
 *.log
 build/
 dist/
