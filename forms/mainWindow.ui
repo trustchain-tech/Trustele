@@ -132,12 +132,12 @@ p, li { white-space: pre-wrap; }
      <string>Launch</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="my_id">
+   <widget class="QLineEdit" name="phone_number_input">
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>220</x>
       <y>30</y>
-      <width>1091</width>
+      <width>1081</width>
       <height>30</height>
      </rect>
     </property>
@@ -148,13 +148,13 @@ p, li { white-space: pre-wrap; }
      </font>
     </property>
     <property name="text">
-     <string>TrustChain</string>
+     <string>+8617600108812</string>
     </property>
     <property name="maxLength">
-     <number>64</number>
+     <number>20</number>
     </property>
    </widget>
-   <widget class="QLabel" name="id_label">
+   <widget class="QLabel" name="phone_label">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -170,7 +170,7 @@ p, li { white-space: pre-wrap; }
      </font>
     </property>
     <property name="text">
-     <string>My name is</string>
+     <string>My Phone is</string>
     </property>
    </widget>
    <widget class="QTextBrowser" name="info_area">

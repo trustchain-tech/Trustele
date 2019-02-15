@@ -1,15 +1,16 @@
 import re
 import os
 import logging
+import time
 from enum import Enum
 from trustele.bots import Bot
 from trustele.bots.send import Sender
 from trustele.forms import mainWindow_ui
 from trustele.models.model import TeleUser
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 
 # my_id format: digit and letter only
-RULE1 = "^[A-Za-z0-9]+$"
+RULE1 = "^\+[0-9]+$"
 # telegram username format
 # valid format is @blockchainaire or u744728214_12686683581455040581
 RULE2 = "^@\w+|u[0-9]{9}_[0-9]{20}$"
@@ -27,16 +28,32 @@ class State(Enum):
     logged = 3
 
 
+class LoginThread(QtCore.QThread):
+        signal = QtCore.pyqtSignal('PyQt_PyObject')
+
+        def __init__(self):
+            QtCore.QThread.__init__(self)
+
+        def prepare(self, phone_number, phone_callback):
+            self.phone_number = phone_number
+            self.callback = phone_callback
+
+        def run(self):
+            Bot.login(self.phone_number, phone_callback=self.callback)
+            self.signal.emit('finished')
+
+
 class Ui(mainWindow_ui.Ui_MainWindow):
     def __init__(self):
         super(Ui, self).__init__()
         self.info = []
         self.err_flag = False
         self.bot = None
+        self.phone_number = None
+        self.valid_code = ''
         self.login_state = State.unlogged
-        # login state: [unlogged] <-----------logout---------------- [logged]
-        # login state: [unlogged] -login-> [to_validate] -validate-> [logged]
-        #                       <-timeout- [to_validate]
+        self.validate_timer = QtCore.QTimer()
+        self.login_thread = LoginThread()
 
     def setupUi(self, mw):
         super().setupUi(mw)
@@ -60,12 +77,62 @@ class Ui(mainWindow_ui.Ui_MainWindow):
         self.user_fetch_list.itemClicked.connect(self.refresh_fetch_selected)
         self.user_fetch_list.currentItemChanged.connect(self.refresh_fetch_selected)
 
+        self.validate_timer.timeout.connect(self.return_unlogged)
+        self.validate_timer.setInterval(120000)
+
+        self.login_thread.signal.connect(self.finished)
+
+    def finished(self, result):
+        self.validate_timer.stop()
+
+    def return_unlogged(self):
+        self.phone_label.setText('My Phone is ')
+        self.phone_number_input.setText(self.phone_number)
+        self.login_button.setText('Login')
+        self.login_state = State.unlogged
+
+    def get_valid_code(self, phone_number=''):
+        print('+' * 10)
+        valid_code = yield
+        return valid_code
+
     def on_login(self):
-        my_id = self.my_id.text().strip()
-        if not re.match(RULE1, my_id):
-            self._err('only digit and letters is valid in User ID \n')
-        self.bot = Bot(my_id)
-        self.login_button.setText('Valid Code')
+        # login state: [unlogged] <-----------logout---------------- [logged]
+        # login state: [unlogged] -login-> [to_validate] -validate-> [logged]
+        #                       <-timeout- [to_validate]
+        if self.login_state == State.unlogged:
+            self.phone_number = self.phone_number_input.text().strip()
+            if not re.match(RULE1, self.phone_number):
+                self._err('invalid phone number format, example +8617612345678\n')
+                return
+
+            self.login_button.setDisabled(True)
+            self.phone_label.setText('Working...')
+            self.phone_number_input.clear()
+
+            self.validate_timer.start()
+            self.login_thread.prepare(self.phone_number, self.get_valid_code)
+            self.login_thread.start()
+            next(self.get_valid_code())
+
+            self.login_state = State.to_validate
+
+            self.phone_label.setText('My Code is ')
+            self.login_button.setText('Validate')
+            self.login_button.setEnabled(True)
+        elif self.login_state == State.to_validate:
+            phone_code = self.phone_number_input.text().strip()
+            self.login_button.setDisabled(True)
+            self.phone_label.setText('Working...')
+
+            self.get_valid_code.send(phone_code)
+
+            self.valid_code = phone_code
+            self.login_button.setText('Logout')
+            self.login_button.setEnabled(True)
+        elif self.login_state == State.logged:
+            self.bot.logout()
+            self.return_unlogged()
 
     def on_launch(self):
         log.info("on launch...")
@@ -130,7 +197,7 @@ class Ui(mainWindow_ui.Ui_MainWindow):
             valid_user_list, invalid_user_list = self._format_user_input(users)
 
             if len(valid_user_list) == 0:
-                self._warn('[WARN] no valid user input')
+                self._warn('no valid user input')
             else:
                 self.user_upload_list.addItems(valid_user_list)
 

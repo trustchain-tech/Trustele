@@ -3,7 +3,7 @@ from pyrogram.api.core import Long
 from io import BytesIO
 
 
-db = SqliteDatabase('aaa.sqlite')
+db = SqliteDatabase('database.sqlite')
 
 # pyrogram signed to webogram unsigned
 def access_hash_translate(access_hash: int):
@@ -63,3 +63,9 @@ class TeleGroup(ChatModel):
 class Membership(BaseModel):
     user = ForeignKeyField(TeleUser, backref='membership')
     group = ForeignKeyField(TeleGroup, backref='membership')
+
+
+with db:
+    for m in [TeleUser, TeleGroup, Membership]:
+        if not db.table_exists(m):
+            m.create_table(m)
